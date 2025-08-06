@@ -1,20 +1,20 @@
 import glob
 
+def write_names():
+    # Process test files
+    test_files = glob.glob('/content/segmentation/datasets/Synapse/test_vol_h5/*.npz')  # or *.np
+    with open('/content/segmentation/lists/lists_Synapse/test.txt', 'w') as f:
+        for file in test_files:
+            name = file.split('/')[-1][:-4] + '\n'  # removes extension and adds newline
+            f.write(name)
+    
+    # Process training files
+    train_files = glob.glob('/content/segmentation/datasets/Synapse/train_npz/*.npz')  # or *.np
+    with open('/content/segmentation/lists/lists_Synapse/train.txt', 'w') as f:
+        for file in train_files:
+            name = file.split('/')[-1][:-4] + '\n'  # removes extension and adds newline
+            f.write(name)
 
-def write_name():
-    # npz文件路径
-    # files = glob.glob(r'D:\DEMO\SCUNet++\datasets\Synapse\train_npz\*.npz')
-    files = glob.glob(r'\datasetsSynapse\test_vol_h5\*.np')
-    # files = glob.glob(r'G:\FINAL\SCUNet++\datasets\Synapse\test_vol_h5\*.npz')
-    # txt文件路径
-    # f = open(r'D:\DEMO\SCUNet++\lists\lists_Synapse\train.txt', 'w')
-    f = open(r'\lists\lists_Synapse\test.txt', 'w')
-    for i in files:
-        name = i.split('\\')[-1]
-        name = name[:-4] + '\n'
-        f.write(name)
+    print("Finished creating both test.txt and train.txt!")
 
-    print("Finished!")
-
-
-write_name()
+write_names()
