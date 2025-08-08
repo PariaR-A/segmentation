@@ -15,6 +15,7 @@ from tqdm import tqdm
 from utils import DiceLoss
 from torchvision import transforms
 from utils import test_single_volume
+import multiprocessing
 
 
 def trainer_synapse(args, model, snapshot_path):
@@ -27,6 +28,7 @@ def trainer_synapse(args, model, snapshot_path):
     num_classes = args.num_classes
     batch_size = args.batch_size * args.n_gpu
     max_iterations = args.max_iterations
+    num_cores = multiprocessing.cpu_count()
     db_train = Synapse_dataset(base_dir=args.root_path, list_dir=args.list_dir, split="train",
                                transform=transforms.Compose(
                                    [RandomGenerator(output_size=[args.img_size, args.img_size])]))
@@ -35,7 +37,7 @@ def trainer_synapse(args, model, snapshot_path):
     def worker_init_fn(worker_id):
         random.seed(args.seed + worker_id)
 
-    trainloader = DataLoader(db_train, batch_size=batch_size, shuffle=True, num_workers=0, pin_memory=True,
+    trainloader = DataLoader(db_train, batch_size=batch_size, shuffle=True, num_workers= num_cores, pin_memory=True,
                              worker_init_fn=worker_init_fn)
     if args.n_gpu > 1:
         model = nn.DataParallel(model)

@@ -14,7 +14,7 @@ from utils import test_single_volume
 from networks.vision_transformer import SwinUnet as ViT_seg
 from trainer import trainer_synapse
 from config import get_config
-
+import multiprocessing
 """
 --dataset Synapse 
 --cfg ./configs/swin_tiny_patch4_window7_224_lite.yaml 
@@ -80,11 +80,13 @@ config = get_config(args)
 
 
 def inference(args, model, test_save_path=None):
+    num_cores = multiprocessing.cpu_count()
     db_test = args.Dataset(base_dir=args.volume_path, split="test_vol", list_dir=args.list_dir)
-    testloader = DataLoader(db_test, batch_size=1, shuffle=False, num_workers=1)
+    testloader = DataLoader(db_test, batch_size=1, shuffle=False, num_workers=num_cores)
     logging.info("{} test iterations per epoch".format(len(testloader)))
     model.eval()
     metric_list = 0.0
+    # Calculate optimal number of workers
     f = open(r'G:\FINAL\SCUNet++\lists\lists_Synapse\testxg.txt', 'w')
 
     for i_batch, sampled_batch in tqdm(enumerate(testloader)):
@@ -153,8 +155,8 @@ if __name__ == "__main__":
 
     snapshot = os.path.join(args.output_dir, 'best_model.pth')
     if not os.path.exists(snapshot):
-        # snapshot = snapshot.replace('best_model', 'epoch_' + str(args.max_epochs - 1))
-        snapshot = snapshot.replace('best_model', 'epoch_' + str(59))
+        even_epoch = (args.max_epochs - 1) // 2 * 2  # Round down to nearest even number
+        snapshot = snapshot.replace('best_model', 'epoch_' + str(even_epoch))
 
     # msg = net.load_state_dict(torch.load(snapshot), False)
 
